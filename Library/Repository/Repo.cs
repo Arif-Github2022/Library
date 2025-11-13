@@ -42,7 +42,7 @@ namespace Library.Repository
         }
 
 
-        public ActionResult AddBook(Book_Class Request)
+        public async Task<ActionResult> AddBook()
         {
             try
             {
@@ -51,23 +51,22 @@ namespace Library.Repository
                     var newMember = new Book_Class
                     {
                         book_Id = 2,
-                        book_name = Request.book_name,
-                        book_author = Request.book_author,
-                        book_description = Request.book_description,
-                        book_category = Request.book_category,
-                        book_publisher = Request.book_publisher,
-                        book_publishYear = Request.book_publishYear,
-                        book_type = Request.book_type,
-                        book_price = Request.book_price,
-                        book_language = Request.book_language,
-                        book_pages = Request.book_pages,
-                        book_title = Request.book_title,
+                        book_name = "Request.book_name",
+                        book_author = "Request.book_author",
+                        book_description = "Request.book_description",
+                        book_category = "Request.book_category",
+                        book_publisher = "Request.book_publisher",
+                        book_publishYear = "Request.book_publishYear",
+                        book_type = "Request.book_type",
+                        book_price = "Request.book_price",
+                        book_language = "Request.book_language",
+                        book_pages = "Request.book_pages",
+                        book_title = "Request.book_title",
                         inserteddate = DateTime.Now,
-                        updateddate= DateTime.Now,
+                        updateddate = DateTime.Now,
                     };
-                    context.book_Class.Add(newMember);
-                   
-                    context.SaveChanges();
+                    context.book_Class.Add(newMember);                   
+                    await context.SaveChangesAsync();
                 }
                 return Ok("record saved");
             }
@@ -76,7 +75,6 @@ namespace Library.Repository
                 return BadRequest("Error: " + ex.Message);
             }
         }
-
 
         public ActionResult issueReceiveBook(Book_IssueReturn_Class Request)
         {
@@ -107,8 +105,6 @@ namespace Library.Repository
         }
 
 
-
-
         [HttpPut("update-book/{reqId}")]
         public async Task<IActionResult> UpdateBook(int reqId, Book_Class request)
         {
@@ -121,6 +117,15 @@ namespace Library.Repository
                     }
 
                     result.book_description = request.book_description;
+                    result.book_author      = request.book_author;
+                    result.book_publisher = request.book_publisher;
+                    result.book_title = request.book_title;
+                    result.book_category = request.book_category;
+                    result.book_name = request.book_name;
+                    result.book_pages = request.book_pages;
+                    result.book_price = request.book_price;
+                    result.book_type = request.book_type;
+                    result.book_language= request.book_language;
                     result.updateddate = DateTime.Now;
                     await _db.SaveChangesAsync();
 
@@ -131,7 +136,27 @@ namespace Library.Repository
                     return StatusCode(500, new { message = "Error occurred while updating the record", details = ex.Message });
                 }
             }
-                
+
+
+        [HttpGet("search-book/{bookId}")]
+        public async Task<ActionResult<Library_Class>> SearchBook(int bookId)
+        {
+            try
+            {
+                var result = await _db.library_Class.FirstOrDefaultAsync(p => p.bookId == bookId);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Book not found." });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error occurred while retrieving the record.", details = ex.Message });
+            }
+        }
+
 
         public bool ValidateUser(string userName, string Password)
         {

@@ -1,5 +1,6 @@
 ﻿using Library.Models;
 using Library.Repository;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -65,9 +66,7 @@ namespace Api.Controllers
             }
         }
 
-
-
-        [HttpPost("update-detail")]
+        [HttpPost("update-book")]
         public async Task<IActionResult> UpdateDetail([FromBody] Book_Class request)
         {
             try
@@ -86,6 +85,27 @@ namespace Api.Controllers
         }
 
 
+        [HttpGet("search-book")]
+        public ActionResult<Library_Class> SearchBook([FromBody] Library_Class request)
+        {
+            try
+            {
+                var result =  _repo.SearchBook(request.bookId);   
+                if (result == null)
+                {
+                    return NotFound(new { message = "Book not found." });
+                }
+                else
+                    {
+                    return Ok(result);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
+        }
 
 
         [HttpPost("insert-user")]
@@ -106,7 +126,6 @@ namespace Api.Controllers
             }
         }
 
-
         [HttpPost("issue-receive_book")]
         public IActionResult issueReceiveBook([FromBody] Book_IssueReturn_Class request)
         {
@@ -126,17 +145,16 @@ namespace Api.Controllers
         }
 
         [HttpPost("Add_Book")]
-        public IActionResult AddBook([FromBody] Book_Class request)
+        public async Task<IActionResult> AddBook()
         {
             try
             {
-                if (request == null)
+               var x= await _repo.AddBook();
+                if (x != null)
                 {
-                    return NotFound(new { message = "User can't be null." });
+                 return Ok(new { message = "Book record added successfully." });
                 }
-              var x=  _repo.AddBook(request);
-                //if(x.ExecuteResult  == true)
-               return Ok(new { message = "Book record updated successfully." });
+                return NotFound(new { message = "Book record not added successfully." });
             }
             catch (Exception ex)
             {
