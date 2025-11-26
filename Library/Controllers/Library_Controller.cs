@@ -1,7 +1,7 @@
 ﻿using Library.Models;
 using Library.Repository;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -45,7 +45,8 @@ namespace Api.Controllers
                     audience: audience,
                     claims: claims,
                     expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings["ExpiryMinutes"])),
-                    signingCredentials: creds
+                   
+                    signingCredentials: creds                   
                 );
                 return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
             }
@@ -58,7 +59,10 @@ namespace Api.Controllers
             try
             {
                 var users = _repo.userlist();
-                return Ok(users);
+                if(users != null)
+                    return Ok(users);
+                else
+                    return NotFound(new { message = "No users found." });
             }
             catch (Exception ex)
             {
@@ -86,11 +90,11 @@ namespace Api.Controllers
 
 
         [HttpGet("search-book")]
-        public ActionResult<Library_Class> SearchBook([FromBody] Library_Class request)
+        public ActionResult<List<Book_Class>> SearchBook(string bookName)
         {
             try
             {
-                var result =  _repo.SearchBook(request.bookId);   
+                var result =  _repo.SearchBook(bookName);   
                 if (result == null)
                 {
                     return NotFound(new { message = "Book not found." });
@@ -135,8 +139,12 @@ namespace Api.Controllers
                 {
                     return NotFound(new { message = "detail's not found" });
                 }
-                _repo.issueReceiveBook(request);
+              var result = _repo.issueReceiveBook(request);
+                if(result != null)
                 return Ok(new { message = "user sdded successfully." });
+                else
+                  return NotFound(new { message = "operation failed." });
+
             }
             catch (Exception ex)
             {
@@ -149,26 +157,32 @@ namespace Api.Controllers
         {
             try
             {
-               var x= await _repo.AddBook();
-                if (x != null)
+               var result= await _repo.AddBook();
+                if (result != null)
                 {
                  return Ok(new { message = "Book record added successfully." });
                 }
-                return NotFound(new { message = "Book record not added successfully." });
+                else
+                { 
+                    return NotFound(new { message = "Book record not added successfully." });
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
-            }
+              catch (Exception ex)
+                {
+                 return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+              }
         }
 
-        [HttpPost("Book-details")]
+        [HttpGet("Book-details")]
         public IActionResult bookdetails()
         {
             try
             {
                 var users = _repo.bookdetails();
-                return Ok(users);
+                if (users != null)               
+                    return Ok(users);
+                else
+                   return NotFound(new { message = "No books found." });
             }
             catch (Exception ex)
             {

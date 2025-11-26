@@ -20,7 +20,7 @@ namespace Library.Repository
                 {
                     var newMember = new Member_Class
                     {
-                        member_regno = 1,
+                        //member_regno = 1,
                         member_name = Request.member_name,
                         member_address = Request.member_address,
                         member_contactno = Request.member_contactno,
@@ -30,8 +30,8 @@ namespace Library.Repository
                         member_validity = Request.member_validity,
                         member_regdate = DateTime.Now.ToString(),
                     };
-                    context.member_Class.Add(newMember);
-                    context.SaveChanges();
+                    _db.member_Class.Add(newMember);
+                    _db.SaveChanges();
                 }
                 return Ok("record saved");
             }
@@ -50,7 +50,7 @@ namespace Library.Repository
                 {
                     var newMember = new Book_Class
                     {
-                        book_Id = 2,
+                        //book_Id = 2,
                         book_name = "Request.book_name",
                         book_author = "Request.book_author",
                         book_description = "Request.book_description",
@@ -65,8 +65,8 @@ namespace Library.Repository
                         inserteddate = DateTime.Now,
                         updateddate = DateTime.Now,
                     };
-                    context.book_Class.Add(newMember);                   
-                    await context.SaveChangesAsync();
+                    _db.book_Class.Add(newMember);                   
+                    await _db.SaveChangesAsync();
                 }
                 return Ok("record saved");
             }
@@ -138,23 +138,19 @@ namespace Library.Repository
             }
 
 
-        [HttpGet("search-book/{bookId}")]
-        public async Task<ActionResult<Library_Class>> SearchBook(int bookId)
+        [HttpGet("search-book/{bookName}")]
+        public  ActionResult<List<Book_Class>> SearchBook(string bookName)
         {
+
             try
             {
-                var result = await _db.library_Class.FirstOrDefaultAsync(p => p.bookId == bookId);
-                if (result == null)
-                {
-                    return NotFound(new { message = "Book not found." });
-                }
-
-                return Ok(result);
+                return _db.book_Class.Where(p => p.book_name == bookName).ToList();
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error occurred while retrieving the record.", details = ex.Message });
             }
+          
         }
 
 

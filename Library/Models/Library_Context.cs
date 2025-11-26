@@ -15,7 +15,7 @@ namespace Library.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=.;Database=LibraryDB;Trusted_Connection=True;TrustServerCertificate=True;");
+                optionsBuilder.UseSqlServer("Server=.;Database=library;Trusted_Connection=True;TrustServerCertificate=True;");
             }
         }
 

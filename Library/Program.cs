@@ -4,10 +4,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<Library_Context>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Con")));
+builder.Services.AddDbContext<Library_Context>(optins => optins.UseSqlServer(builder.Configuration.GetConnectionString("Con"), sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null
+        )));
 builder.Services.AddScoped<Repo>();
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
@@ -19,7 +24,21 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+
+//builder.Services.AddDbContext<Library_Context>(options =>
+////builder.Services.AddScoped<Repo>();
+////builder.Services.AddControllers();
+//    options.UseSqlServer(
+//        builder.Configuration.GetConnectionString("Con"),
+//        sqlOptions => sqlOptions.EnableRetryOnFailure(
+//            maxRetryCount: 5,
+//            maxRetryDelay: TimeSpan.FromSeconds(10),
+//            errorNumbersToAdd: null
+//        )
+//    )
+//);
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Library API", Version = "v1" });
@@ -49,6 +68,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = issuer,
             ValidAudience = audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            RequireExpirationTime = true,
             ClockSkew = TimeSpan.Zero
         };
 
