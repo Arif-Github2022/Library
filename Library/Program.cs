@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,19 +23,6 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
-
-//builder.Services.AddDbContext<Library_Context>(options =>
-////builder.Services.AddScoped<Repo>();
-////builder.Services.AddControllers();
-//    options.UseSqlServer(
-//        builder.Configuration.GetConnectionString("Con"),
-//        sqlOptions => sqlOptions.EnableRetryOnFailure(
-//            maxRetryCount: 5,
-//            maxRetryDelay: TimeSpan.FromSeconds(10),
-//            errorNumbersToAdd: null
-//        )
-//    )
-//);
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(c =>
