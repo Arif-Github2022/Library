@@ -16,12 +16,9 @@ namespace Library.Repository
         {
             try
             {
-                using (var context = new Library_Context())
-                {
                     var newMember = new Member_Class
                     {
-                        //member_regno = 1,
-                        member_name = Request.member_name,
+                       member_name = Request.member_name,
                         member_address = Request.member_address,
                         member_contactno = Request.member_contactno,
                         member_depositeamount = Request.member_depositeamount,
@@ -32,7 +29,7 @@ namespace Library.Repository
                     };
                     _db.member_Class.Add(newMember);
                     _db.SaveChanges();
-                }
+                
                 return Ok("record saved");
             }
             catch (Exception ex)
@@ -46,12 +43,10 @@ namespace Library.Repository
         {
             try
             {
-                using (var context = new Library_Context())
-                {
+ 
                     var newMember = new Book_Class
                     {
-                        //book_Id = 2,
-                        book_name = "Request.book_name",
+                       book_name = "Request.book_name",
                         book_author = "Request.book_author",
                         book_description = "Request.book_description",
                         book_category = "Request.book_category",
@@ -67,8 +62,7 @@ namespace Library.Repository
                     };
                     _db.book_Class.Add(newMember);                   
                     await _db.SaveChangesAsync();
-                }
-                return Ok("record saved");
+                   return Ok("record saved");
             }
             catch (Exception ex)
             {
@@ -80,9 +74,7 @@ namespace Library.Repository
         {
             try
             {
-                using (var context = new Library_Context())
-                {
-                    var newMember = new Book_IssueReturn_Class
+                   var newMember = new Book_IssueReturn_Class
                     {
                         book_Id = Request.book_Id,
                         userId = Request.userId,
@@ -93,9 +85,9 @@ namespace Library.Repository
                         inserteddate = DateTime.Now,
                         updateddate = DateTime.Now             
                     };
-                    context.book_IssueReturn_Class.Add(newMember);
-                    context.SaveChanges();
-                }
+                    _db.book_IssueReturn_Class.Add(newMember);
+                    _db.SaveChanges();
+                
                 return Ok("record saved");
             }
             catch (Exception ex)
