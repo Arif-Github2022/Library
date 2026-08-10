@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Library.Models
+namespace libraryApplication.Model
 {
-    public class Book_IssueReturn_Class
+    public class Book_IssueReturn_Model
     {
-        [Key]
         public int Id { get; set; }
         public int book_Id { get; set; }
         public int userId { get; set; }

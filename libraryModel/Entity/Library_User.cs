@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace eTrack.Models
+namespace libraryModel.Entity
 {
     public class Library_User
     {

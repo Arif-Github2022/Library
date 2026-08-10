@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Library.Models
+namespace libraryApplication.Model
 {
-    public class Library_Class
+    public class Library_Model
     {
         [Key]
         public int Id { get; set; }

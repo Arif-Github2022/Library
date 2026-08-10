@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Library.Models
+namespace libraryApplication.Model
 {
-    public class Book_Class
+    public class Book_Model
     {
-        [Key]
         public int book_Id { get; set; }
         public string? book_name { get; set; }
         public string? book_author { get; set; }

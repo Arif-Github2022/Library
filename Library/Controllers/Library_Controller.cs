@@ -1,13 +1,15 @@
-﻿using Library.Models;
-using Library.Repository;
+﻿using libraryApplication.Model;
+using libraryApplication.Repository;
+using libraryInfra;
+using libraryModel.Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Api.Controllers
+namespace libraryApi.Controllers
 {
     [Route("libraryAPI")]
     [ApiController]
@@ -16,11 +18,18 @@ namespace Api.Controllers
         private readonly Library_Context _db;
         private Repo _repo;
         private readonly IConfiguration _config;
-        public Library_Controller(Library_Context db, Repo repo, IConfiguration config)
+      public Library_Controller(Library_Context db, Repo repo, IConfiguration config)
         {
             _config = config;
             _db = db;
             _repo = repo;
+        }
+        [HttpGet("event-producing")]
+        public async Task<IActionResult> Producing(CancellationToken cancellationToken)
+        {
+            await _repo.ProduceAsync(cancellationToken);
+
+            return Ok("Event Sent!");
         }
 
         [HttpGet("gettoken")]
@@ -44,23 +53,25 @@ namespace Api.Controllers
                     issuer: issuer,
                     audience: audience,
                     claims: claims,
-                    expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings["ExpiryMinutes"])),
-                   
-                    signingCredentials: creds                   
+                    expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings["DurationInMinutes"])),
+
+                    signingCredentials: creds
                 );
                 return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
             }
             return NotFound("token");
+
         }
 
         [HttpGet("userlist")]
+        [Authorize]
         public IActionResult GetUserList()
         {
             try
             {
                 var users = _repo.userlist();
-                if(users != null)
-                    return Ok(users);
+                if(users.Result.Result != null)
+                    return Ok(users.Result.Result);
                 else
                     return NotFound(new { message = "No users found." });
             }
@@ -71,7 +82,8 @@ namespace Api.Controllers
         }
 
         [HttpPost("update-book")]
-        public async Task<IActionResult> UpdateDetail([FromBody] Book_Class request)
+        [Authorize]
+        public async Task<IActionResult> UpdateDetail([FromBody] Book_Model request)
         {
             try
             {
@@ -90,18 +102,21 @@ namespace Api.Controllers
 
 
         [HttpGet("search-book")]
-        public ActionResult<List<Book_Class>> SearchBook(string bookName)
+        [Authorize]
+        public async Task<ActionResult<Book_Model>> SearchBook(string bookName)
         {
             try
             {
-                var result =  _repo.SearchBook(bookName);   
+                var result =  await _repo.SearchBook(bookName);   
                 if (result == null)
                 {
                     return NotFound(new { message = "Book not found." });
                 }
                 else
                     {
-                    return Ok(result);
+
+
+                   return Ok(result.Result);
                 }
             }
 
@@ -113,7 +128,8 @@ namespace Api.Controllers
 
 
         [HttpPost("insert-user")]
-        public IActionResult insertUser([FromBody] Member_Class request)
+        [Authorize]
+        public IActionResult insertUser([FromBody] Member_Model request)
         {
             try
             {
@@ -131,7 +147,8 @@ namespace Api.Controllers
         }
 
         [HttpPost("issue-receive_book")]
-        public IActionResult issueReceiveBook([FromBody] Book_IssueReturn_Class request)
+        [Authorize]
+        public IActionResult issueReceiveBook([FromBody] Book_IssueReturn_Model request)
         {
             try
             {
@@ -153,11 +170,12 @@ namespace Api.Controllers
         }
 
         [HttpPost("Add_Book")]
-        public async Task<IActionResult> AddBook()
+        [Authorize]
+        public async Task<IActionResult> AddBook(Book_Model request)
         {
             try
             {
-               var result= await _repo.AddBook();
+               var result= await _repo.AddBook(request);
                 if (result != null)
                 {
                  return Ok(new { message = "Book record added successfully." });
@@ -174,15 +192,16 @@ namespace Api.Controllers
         }
 
         [HttpGet("Book-details")]
-        public IActionResult bookdetails()
+        [Authorize]
+        public async Task<ActionResult<List<Book_Model>>> bookdetails()
         {
             try
             {
-                var users = _repo.bookdetails();
-                if (users != null)               
-                    return Ok(users);
+                var users = await _repo.BookDetails();
+                if (users != null)
+                    return Ok(users.Result);
                 else
-                   return NotFound(new { message = "No books found." });
+                    return NotFound(new { message = "No books found." });
             }
             catch (Exception ex)
             {
@@ -191,3 +210,5 @@ namespace Api.Controllers
         }
     }
 }
+
+

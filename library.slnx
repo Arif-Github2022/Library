@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="kafkaConsumer/KafkaDotNet.Consumer/KafkaDotNet.Consumer.csproj" />
+  <Project Path="library/libraryApi.csproj" />
+  <Project Path="libraryApplication/libraryApplication.csproj" />
+  <Project Path="libraryInfra/libraryInfra.csproj" />
+  <Project Path="libraryModel/libraryModel.csproj" />
+</Solution>
